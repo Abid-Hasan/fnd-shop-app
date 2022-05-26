@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../models/product.dart';
+import 'product.dart';
 
-class ProductsProvider with ChangeNotifier {
+class Products with ChangeNotifier {
   List<Product> _products = [
     Product(
       id: 'p1',
@@ -40,5 +40,29 @@ class ProductsProvider with ChangeNotifier {
 
   List<Product> get products {
     return [..._products];
+  }
+
+  List<Product> get favoriteProducts {
+    return _products
+        .where(
+          (element) => element.isFavorite == true,
+        )
+        .toList();
+  }
+
+  // var _showFavoritesOnly = false;
+
+  // void showFavoritesOnly() {
+  //   _showFavoritesOnly = true;
+  //   notifyListeners();
+  // }
+
+  // void showAll() {
+  //   _showFavoritesOnly = false;
+  //   notifyListeners();
+  // }
+
+  Product getProductById(String id) {
+    return _products.firstWhere((element) => element.id == id);
   }
 }

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import './providers/products_provider.dart';
+import './screens/product_detail_screen.dart';
+import 'providers/products.dart';
 import './screens/products_overview_screen.dart';
 
 void main() => runApp(
       ChangeNotifierProvider(
-        create: (context) => ProductsProvider(),
+        create: (context) => Products(),
         child: MyApp(),
       ),
     );
@@ -21,7 +22,10 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.deepOrange,
         fontFamily: 'Lato',
       ),
-      home: ProductsOverviewScreen(),
+      routes: {
+        '/': (context) => ProductsOverviewScreen(),
+        ProductDetailScreen.routeName: (context) => ProductDetailScreen(),
+      },
     );
   }
 }
