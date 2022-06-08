@@ -60,7 +60,7 @@ class Products with ChangeNotifier {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       List<Product> loadedProducts = [];
-      if (extractedData != null)
+      if (extractedData != null) {
         extractedData.forEach((key, value) {
           loadedProducts.add(
             Product(
@@ -73,6 +73,7 @@ class Products with ChangeNotifier {
             ),
           );
         });
+      }
       _items = loadedProducts;
       notifyListeners();
     } catch (error) {
