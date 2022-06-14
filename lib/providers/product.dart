@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class Product with ChangeNotifier {
-  final String id;
+  final String productId;
   final String title;
   final String description;
   final double price;
@@ -12,7 +12,7 @@ class Product with ChangeNotifier {
   bool isFavorite;
 
   Product({
-    @required this.id,
+    @required this.productId,
     @required this.title,
     @required this.description,
     @required this.price,
@@ -20,16 +20,17 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavorite() {
+  void toggleFavorite(String token, String userId) {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
-    final url = Uri.parse("https://fnd-shop-app-default-rtdb.firebaseio.com/products/${id}.json");
+    final url = Uri.parse(
+        "https://fnd-shop-app-default-rtdb.firebaseio.com/userFavorites/${userId}/${productId}.json?auth=$token");
     http
-        .patch(
+        .put(
       url,
       body: json.encode(
-        {"isFavorite": isFavorite},
+        isFavorite,
       ),
     )
         .then((response) {

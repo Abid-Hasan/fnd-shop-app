@@ -38,6 +38,10 @@ class Products with ChangeNotifier {
     // ),
   ];
 
+  final String token;
+  final String userId;
+  Products(this.token, this.userId, this._items);
+
   List<Product> get products {
     return [..._items];
   }
@@ -51,29 +55,40 @@ class Products with ChangeNotifier {
   }
 
   Product getProductById(String id) {
-    return _items.firstWhere((element) => element.id == id);
+    return _items.firstWhere((element) => element.productId == id);
   }
 
-  Future<void> fetchAndSetProducts() async {
-    final url = Uri.parse("https://fnd-shop-app-default-rtdb.firebaseio.com/products.json");
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
+    final filterString =
+        filterByUser ? '&orderBy="creatorId"&equalTo="${userId}"' : '';
+
+    var url = Uri.parse(
+        'https://fnd-shop-app-default-rtdb.firebaseio.com/products.json?auth=${token}${filterString}');
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      if (extractedData == null) return;
+
+      url = Uri.parse(
+          "https://fnd-shop-app-default-rtdb.firebaseio.com/userFavorites/${userId}.json?auth=$token");
+      final favoriteResponse = await http.get(url);
+      final favoriteData = json.decode(favoriteResponse.body);
+
       List<Product> loadedProducts = [];
-      if (extractedData != null) {
-        extractedData.forEach((key, value) {
-          loadedProducts.add(
-            Product(
-              id: key,
-              title: value['title'],
-              description: value['description'],
-              price: value['price'],
-              imageUrl: value['imageUrl'],
-              isFavorite: value['isFavorite'],
-            ),
-          );
-        });
-      }
+      extractedData.forEach((key, value) {
+        loadedProducts.add(
+          Product(
+            productId: key,
+            title: value['title'],
+            description: value['description'],
+            price: value['price'],
+            imageUrl: value['imageUrl'],
+            isFavorite:
+                favoriteData == null ? false : favoriteData[key] ?? false,
+          ),
+        );
+      });
+
       _items = loadedProducts;
       notifyListeners();
     } catch (error) {
@@ -83,7 +98,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) {
-    final url = Uri.parse("https://fnd-shop-app-default-rtdb.firebaseio.com/products.json");
+    final url = Uri.parse(
+        "https://fnd-shop-app-default-rtdb.firebaseio.com/products.json?auth=$token");
 
     return http
         .post(
@@ -94,13 +110,13 @@ class Products with ChangeNotifier {
           "price": product.price,
           "description": product.description,
           "imageUrl": product.imageUrl,
-          "isFavorite": product.isFavorite,
+          "creatorId": userId,
         },
       ),
     )
         .then((response) {
       final newProduct = Product(
-        id: json.decode(response.body)["name"],
+        productId: json.decode(response.body)["name"],
         title: product.title,
         description: product.description,
         price: product.price,
@@ -117,9 +133,10 @@ class Products with ChangeNotifier {
   }
 
   Future<void> editProduct(Product product) async {
-    final index = _items.indexWhere((x) => x.id == product.id);
+    final index = _items.indexWhere((x) => x.productId == product.productId);
     if (index >= 0) {
-      final url = Uri.parse("https://fnd-shop-app-default-rtdb.firebaseio.com/products/${product.id}.json");
+      final url = Uri.parse(
+          "https://fnd-shop-app-default-rtdb.firebaseio.com/products/${product.productId}.json?auth=$token");
 
       await http.patch(
         url,
@@ -139,11 +156,12 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String productId) {
-    final url = Uri.parse("https://fnd-shop-app-default-rtdb.firebaseio.com/products/${productId}.json");
+    final url = Uri.parse(
+        "https://fnd-shop-app-default-rtdb.firebaseio.com/products/${productId}.json?auth=$token");
 
     return http.delete(url).then((response) {
       if (response.statusCode < 400) {
-        _items.removeWhere((pr) => pr.id == productId);
+        _items.removeWhere((pr) => pr.productId == productId);
         notifyListeners();
       }
     });

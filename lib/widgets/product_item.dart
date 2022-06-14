@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/providers/auth.dart';
 
 import '../providers/cart.dart';
 import '../providers/product.dart';
@@ -12,6 +13,7 @@ class ProductItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context);
     final cart = Provider.of<Cart>(context, listen: false);
+    final auth = Provider.of<Auth>(context, listen: false);
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GridTile(
@@ -26,7 +28,7 @@ class ProductItem extends StatelessWidget {
           onTap: () {
             Navigator.of(context).pushNamed(
               ProductDetailScreen.routeName,
-              arguments: product.id,
+              arguments: product.productId,
             );
           },
           child: Image.network(
@@ -41,7 +43,7 @@ class ProductItem extends StatelessWidget {
             icon: Icon(
               product.isFavorite ? Icons.favorite : Icons.favorite_border,
             ),
-            onPressed: product.toggleFavorite,
+            onPressed: () => product.toggleFavorite(auth.token, auth.userId),
           ),
           title: Text(
             '\$${product.price}',
@@ -51,7 +53,7 @@ class ProductItem extends StatelessWidget {
             color: Theme.of(context).accentColor,
             icon: Icon(Icons.shopping_cart),
             onPressed: () {
-              cart.addItem(product.id, product.title, product.price);
+              cart.addItem(product.productId, product.title, product.price);
               ScaffoldMessenger.of(context)
                   .hideCurrentSnackBar(); // hide existing snackbar (if any)
               ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +62,7 @@ class ProductItem extends StatelessWidget {
                   duration: Duration(seconds: 3),
                   action: SnackBarAction(
                     label: 'UNDO',
-                    onPressed: () => cart.removeSingleItem(product.id),
+                    onPressed: () => cart.removeSingleItem(product.productId),
                   ),
                 ),
               );

@@ -20,6 +20,7 @@ class _OrderItemState extends State<OrderItem> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      elevation: 3,
       margin: EdgeInsets.all(10),
       child: Column(children: [
         ListTile(
@@ -37,7 +38,6 @@ class _OrderItemState extends State<OrderItem> {
         ),
         if (_expanded)
           Scrollbar(
-            thumbVisibility: true,
             thickness: 8,
             child: Container(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),

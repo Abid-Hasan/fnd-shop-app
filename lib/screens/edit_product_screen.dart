@@ -16,7 +16,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _imageUrlController = TextEditingController();
   final _imageUrlFocusNode = FocusNode();
   final _form = GlobalKey<FormState>();
-  var _editedProduct = Product(id: '', title: '', description: '', price: 0, imageUrl: '');
+  var _editedProduct = Product(
+      productId: '', title: '', description: '', price: 0, imageUrl: '');
   var _isInit = false;
   var _isEditMode = false;
   var _isLoading = false;
@@ -40,20 +41,26 @@ class _EditProductScreenState extends State<EditProductScreen> {
     });
 
     if (_isEditMode) {
-      Provider.of<Products>(context, listen: false).editProduct(_editedProduct).then((_) {
+      Provider.of<Products>(context, listen: false)
+          .editProduct(_editedProduct)
+          .then((_) {
         setState(() {
           _isLoading = false;
         });
         Navigator.of(context).pop();
       });
     } else {
-      Provider.of<Products>(context, listen: false).addProduct(_editedProduct).catchError((error) {
+      Provider.of<Products>(context, listen: false)
+          .addProduct(_editedProduct)
+          .catchError((error) {
         return showDialog<Null>(
             context: context,
             builder: (ctx) {
               return AlertDialog(
                 title: Text("Error"),
-                content: Text("An error occurred. Please try again later. \n\n" + error.toString()),
+                content: Text(
+                    "An error occurred. Please try again later. \n\n" +
+                        error.toString()),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -86,7 +93,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
       final _productId = ModalRoute.of(context).settings.arguments as String;
       if (_productId == null) return;
 
-      _editedProduct = Provider.of<Products>(context).getProductById(_productId);
+      _editedProduct =
+          Provider.of<Products>(context).getProductById(_productId);
       _imageUrlController.text = _editedProduct.imageUrl;
       _isEditMode = true;
     }
@@ -134,7 +142,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       },
                       onSaved: (value) {
                         _editedProduct = Product(
-                          id: _editedProduct.id,
+                          productId: _editedProduct.productId,
                           isFavorite: _editedProduct.isFavorite,
                           title: value,
                           description: _editedProduct.description,
@@ -144,19 +152,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       },
                     ),
                     TextFormField(
-                      initialValue: _editedProduct.price == 0 ? "" : _editedProduct.price.toString(),
+                      initialValue: _editedProduct.price == 0
+                          ? ""
+                          : _editedProduct.price.toString(),
                       decoration: InputDecoration(label: Text('Price')),
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value.isEmpty) return "Please enter a price";
-                        if (double.tryParse(value) == null) return "Please enter a valid number";
-                        if (double.parse(value) <= 0) "Please enter a number greater than zero";
+                        if (double.tryParse(value) == null)
+                          return "Please enter a valid number";
+                        if (double.parse(value) <= 0)
+                          "Please enter a number greater than zero";
                         return null;
                       },
                       onSaved: (value) {
                         _editedProduct = Product(
-                          id: _editedProduct.id,
+                          productId: _editedProduct.productId,
                           isFavorite: _editedProduct.isFavorite,
                           title: _editedProduct.title,
                           description: _editedProduct.description,
@@ -171,12 +183,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       maxLines: 3,
                       validator: (value) {
                         if (value.isEmpty) return "Please enter a description";
-                        if (value.length < 10) return "Description should be at least 10 characters long";
+                        if (value.length < 10)
+                          return "Description should be at least 10 characters long";
                         return null;
                       },
                       onSaved: (value) {
                         _editedProduct = Product(
-                          id: _editedProduct.id,
+                          productId: _editedProduct.productId,
                           isFavorite: _editedProduct.isFavorite,
                           title: _editedProduct.title,
                           description: value,
@@ -212,21 +225,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         ),
                         Expanded(
                           child: TextFormField(
-                            decoration: InputDecoration(label: Text('Image URL')),
+                            decoration:
+                                InputDecoration(label: Text('Image URL')),
                             keyboardType: TextInputType.url,
                             textInputAction: TextInputAction.done,
                             controller: _imageUrlController,
                             focusNode: _imageUrlFocusNode,
                             onEditingComplete: () => setState(() {}),
                             validator: (value) {
-                              if (value.isEmpty) return "Please enter an image URL";
-                              if (!value.toLowerCase().startsWith('http')) return "Please enter a valid URL";
+                              if (value.isEmpty)
+                                return "Please enter an image URL";
+                              if (!value.toLowerCase().startsWith('http'))
+                                return "Please enter a valid URL";
                               return null;
                             },
                             onFieldSubmitted: (_) => _saveForm(),
                             onSaved: (value) {
                               _editedProduct = Product(
-                                id: _editedProduct.id,
+                                productId: _editedProduct.productId,
                                 isFavorite: _editedProduct.isFavorite,
                                 title: _editedProduct.title,
                                 description: _editedProduct.description,
